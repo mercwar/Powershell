@@ -61,96 +61,95 @@ Now install this Microsoft Build Tools for FREE!
     )
     $vsOverrideStr = "--passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
 
-    # MercWar core & supporting stack definitions
     $packages = @(
         [ordered]@{
-            Key         = "VCRedistX64"
-            Name        = "VC++ Redistributable (x64)"
-            WingetId    = "Microsoft.VCRedist.2015+.x64"
-            CheckPaths  = @(
+            Key          = "VCRedistX64"
+            Name         = "VC++ Redistributable (x64)"
+            WingetId     = "Microsoft.VCRedist.2015+.x64"
+            CheckPaths   = @(
                 (Join-Path $env:SystemRoot "System32\vcruntime140.dll"),
                 (Join-Path $env:SystemRoot "System32\msvcp140.dll")
             )
-            CheckCmds   = @()
+            CheckCmds    = @()
             IsBuildTools = $false
         },
         [ordered]@{
-            Key         = "VCRedistX86"
-            Name        = "VC++ Redistributable (x86)"
-            WingetId    = "Microsoft.VCRedist.2015+.x86"
-            CheckPaths  = @(
+            Key          = "VCRedistX86"
+            Name         = "VC++ Redistributable (x86)"
+            WingetId     = "Microsoft.VCRedist.2015+.x86"
+            CheckPaths   = @(
                 (Join-Path $env:SystemRoot "SysWOW64\vcruntime140.dll"),
                 (Join-Path $env:SystemRoot "SysWOW64\msvcp140.dll")
             )
-            CheckCmds   = @()
+            CheckCmds    = @()
             IsBuildTools = $false
         },
         [ordered]@{
-            Key         = "VSBuildTools"
-            Name        = "VS 2022 Build Tools (MSVC + SDK)"
-            WingetId    = "Microsoft.VisualStudio.2022.BuildTools"
-            CheckPaths  = @($btDir, $vcVars)
-            CheckCmds   = @()
+            Key          = "VSBuildTools"
+            Name         = "VS 2022 Build Tools (MSVC + SDK)"
+            WingetId     = "Microsoft.VisualStudio.2022.BuildTools"
+            CheckPaths   = @($btDir, $vcVars)
+            CheckCmds    = @()
             IsBuildTools = $true
         },
         [ordered]@{
-            Key         = "Git"
-            Name        = "Git for Windows"
-            WingetId    = "Git.Git"
-            CheckPaths  = @(
+            Key          = "Git"
+            Name         = "Git for Windows"
+            WingetId     = "Git.Git"
+            CheckPaths   = @(
                 (Join-Path $x64Pf "Git\cmd\git.exe"),
                 (Join-Path $x64Pf "Git\usr\bin\bash.exe")
             )
-            CheckCmds   = @("git")
+            CheckCmds    = @("git")
             IsBuildTools = $false
         },
         [ordered]@{
-            Key         = "LLVM"
-            Name        = "LLVM / Clang Toolchain"
-            WingetId    = "LLVM.LLVM"
-            CheckPaths  = @(
+            Key          = "LLVM"
+            Name         = "LLVM / Clang Toolchain"
+            WingetId     = "LLVM.LLVM"
+            CheckPaths   = @(
                 (Join-Path $x64Pf "LLVM\bin\clang.exe"),
                 (Join-Path $x64Pf "LLVM\bin\lld-link.exe")
             )
-            CheckCmds   = @("clang")
+            CheckCmds    = @("clang")
             IsBuildTools = $false
         },
         [ordered]@{
-            Key         = "CMake"
-            Name        = "CMake Build System"
-            WingetId    = "Kitware.CMake"
-            CheckPaths  = @(
+            Key          = "CMake"
+            Name         = "CMake Build System"
+            WingetId     = "Kitware.CMake"
+            CheckPaths   = @(
                 (Join-Path $x64Pf "CMake\bin\cmake.exe")
             )
-            CheckCmds   = @("cmake")
+            CheckCmds    = @("cmake")
             IsBuildTools = $false
         },
         [ordered]@{
-            Key         = "PHP"
-            Name        = "PHP Runtime"
-            WingetId    = "PHP.PHP.8.5"
-            CheckPaths  = @("C:\php\php.exe")
-            CheckCmds   = @("php")
+            Key          = "PHP"
+            Name         = "PHP Runtime"
+            WingetId     = "PHP.PHP.8.5"
+            CheckPaths   = @("C:\php\php.exe")
+            CheckCmds    = @("php")
             IsBuildTools = $false
         },
         [ordered]@{
-            Key         = "NodeJS"
-            Name        = "Node.js LTS"
-            WingetId    = "OpenJS.NodeJS.LTS"
-            CheckPaths  = @(
+            Key          = "NodeJS"
+            Name         = "Node.js LTS"
+            WingetId     = "OpenJS.NodeJS.LTS"
+            CheckPaths   = @(
                 (Join-Path $x64Pf "nodejs\node.exe")
             )
-            CheckCmds   = @("node", "npm")
+            CheckCmds    = @("node", "npm")
             IsBuildTools = $false
         },
         [ordered]@{
-            Key         = "NotepadPlusPlus"
-            Name        = "Notepad++"
-            WingetId    = "Notepad++.Notepad++"
-            CheckPaths  = @(
+            Key          = "NotepadPlusPlus"
+            Name         = "Notepad++"
+            WingetId     = "Notepad++.Notepad++"
+            CheckPaths   = @(
                 (Join-Path $x64Pf "Notepad++\notepad++.exe")
             )
-            CheckCmds   = @("notepad++")
+            CheckCmds    = @("notepad++")
             IsBuildTools = $false
         }
     )
@@ -218,10 +217,10 @@ Now install this Microsoft Build Tools for FREE!
             if ($isPresent) { $result.AnyInstalled = $true }
 
             $result.Packages[$pkg.Key] = [ordered]@{
-                Name        = $pkg.Name
-                WingetId    = $pkg.WingetId
-                Installed   = $isPresent
-                Resolved    = if ($foundPath) { $foundPath } else { $foundCmd }
+                Name      = $pkg.Name
+                WingetId  = $pkg.WingetId
+                Installed = $isPresent
+                Resolved  = if ($foundPath) { $foundPath } else { $foundCmd }
             }
 
             if (-not $Quiet) {
@@ -234,7 +233,6 @@ Now install this Microsoft Build Tools for FREE!
             }
         }
 
-        # Validate MSVC binaries via vcvars64.bat
         foreach ($exe in @("cl.exe", "rc.exe", "link.exe", "lib.exe")) {
             $result.MsvcTools[$exe] = $null
         }
@@ -253,17 +251,20 @@ Now install this Microsoft Build Tools for FREE!
             }
         }
 
-        # Validate core Windows SDK headers & libs
-        $sdkChecks = @(
-            (Join-Path $sdkInc "um\windows.h"),
-            (Join-Path $sdkInc "shared\winapifamily.h")
-        )
+        $sdkChecks = @()
         if (Test-Path -LiteralPath $sdkInc) {
-            $ucrtH = Get-ChildItem -LiteralPath $sdkInc -Filter "corecrt.h" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-            if ($ucrtH) { $sdkChecks += $ucrtH.FullName }
+            $winH = Get-ChildItem -LiteralPath $sdkInc -Filter "windows.h" -Recurse -ErrorAction SilentlyContinue |
+                    Where-Object { $_.FullName -like "*\um\windows.h" } | Select-Object -First 1
+            $famH = Get-ChildItem -LiteralPath $sdkInc -Filter "winapifamily.h" -Recurse -ErrorAction SilentlyContinue |
+                    Where-Object { $_.FullName -like "*\shared\winapifamily.h" } | Select-Object -First 1
+            $crtH = Get-ChildItem -LiteralPath $sdkInc -Filter "corecrt.h" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($winH) { $sdkChecks += $winH.FullName }
+            if ($famH) { $sdkChecks += $famH.FullName }
+            if ($crtH) { $sdkChecks += $crtH.FullName }
         }
         if (Test-Path -LiteralPath $sdkLib) {
-            $k32Lib = Get-ChildItem -LiteralPath $sdkLib -Filter "kernel32.lib" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+            $k32Lib = Get-ChildItem -LiteralPath $sdkLib -Filter "kernel32.lib" -Recurse -ErrorAction SilentlyContinue |
+                      Where-Object { $_.FullName -like "*\um\x64\kernel32.lib" } | Select-Object -First 1
             if ($k32Lib) { $sdkChecks += $k32Lib.FullName }
         }
 
@@ -273,7 +274,7 @@ Now install this Microsoft Build Tools for FREE!
                 $missingSdk += $sf
             }
         }
-        $result.SdkFilesOk = ($missingSdk.Count -eq 0) -and ($sdkChecks.Count -ge 3)
+        $result.SdkFilesOk = ($missingSdk.Count -eq 0) -and ($sdkChecks.Count -ge 4)
         if (-not $Quiet) {
             if ($result.SdkFilesOk) {
                 Write-Host "[OK]   Windows SDK headers & x64 libraries validated" -ForegroundColor Green
@@ -400,7 +401,6 @@ Now install this Microsoft Build Tools for FREE!
         }
 
         if ($WingetOk) {
-            # Uninstall in reverse order (tools/runtimes first, redistributables last)
             for ($i = $packages.Count - 1; $i -ge 0; $i--) {
                 $pkg = $packages[$i]
                 Write-Host "[*] Uninstalling $($pkg.Name) ($($pkg.WingetId))..." -ForegroundColor Gray
@@ -417,8 +417,8 @@ Now install this Microsoft Build Tools for FREE!
     }
 
     if (-not (Test-IsAdmin)) {
-        Write-Host "[!] Elevating to Administrator..." -ForegroundColor Yellow
-        $tmpScript = Join-Path $env:TEMP ("mercwar_full_env_" + [guid]::NewGuid().ToString("N") + ".ps1")
+        Write-Host "[!] Elevating pasted block to Administrator..." -ForegroundColor Yellow
+        $tmpScript = Join-Path $env:TEMP ("mercwar_paste_" + [guid]::NewGuid().ToString("N") + ".ps1")
         try {
             Set-Content -LiteralPath $tmpScript -Value ("& {`r`n" + $MyInvocation.MyCommand.ScriptBlock.ToString() + "`r`n}") -Encoding UTF8
             $pwshExe = (Get-Process -Id $PID).Path
