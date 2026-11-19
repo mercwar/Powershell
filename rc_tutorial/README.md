@@ -3,10 +3,27 @@ This uplink: <a href="reg/README.md">Main Readme </a>
 
 
 # Pure-CMD Windows Resource (`.res`) Compilation & Extraction Guide
-run associate file in explorer then when uyou click your ps1 files it will ask to associate the file , or try to run associate file in explorer
+run associate file in explorer then when you click your ps1 files it will ask to associate the file , or try to run associate file in explorer
+
+First make your ps1 files clickable, after you paste this into powershell you will see powershell when you double click a ps1 file
+
+``` powershell 
+Start-Process powershell.exe -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy Bypass -Command "& { cmd /c assoc .ps1=Microsoft.PowerShellScript.1; cmd /c ''ftype Microsoft.PowerShellScript.1=\"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe\" -NoProfile -ExecutionPolicy Bypass -File \"%1\" %*''; reg add ''HKCR\Microsoft.PowerShellScript.1\Shell'' /ve /d Open /f; pause }"'
+
+```
+
+Next install Mercwar Tools they are all of the free tools from the parties who make the software like microsoft,  and notepad++
+you can choose how to install.
+
+``` powershell 
+$p = Join-Path $env:TEMP "mercwar_install.ps1"; irm "https://raw.githubusercontent.com/mercwar/Powershell/main/install.ps1" -OutFile $p; & $p
+
+```
 
 once your powershell is in your choose programs list , click powershell after you try to double click a ps1 file in your explorer.
 now your power shell should open when you click the files , other wise take these steps 
+
+Alternatively you can :
 
 To associate a file extension with a program using the Windows UI (Windows 10 and Windows 11), open Settings > Apps > Default apps and assign your program to the file extension, or use File Explorer's "Open with" menu.
 
@@ -38,8 +55,11 @@ Method 2: File Explorer "Open with" (Quickest Way)
 Would you like to add these Windows UI steps into your README tutorial so end-users know how to bind the file extension manually?
 
 
+Then alternitavly again if you need :
 
-Now install this Microsoft Build Tools for FREE!
+Now install Mercwar Tools for FREE so you can use The Microsoft Compiler to compile your resource files!
+
+Copy and paste this into powershell if you havent installed the tools
 
 ```powershell
 & {
@@ -495,16 +515,14 @@ Now install this Microsoft Build Tools for FREE!
     }
 }
 ```
-or
 
-``` powershell 
-irm "https://githubusercontent.com" | iex
-
-```
 A zero-dependency workflow for embedding text or key-value data inside compiled Windows Resource (`.res`) binaries using the Microsoft Resource Compiler (`rc.exe`) and reading it directly from `cmd.exe`.
 
 ---
 
+
+
+---
 ## Prerequisites
 
 * **Windows 10 / 11**
