@@ -11,9 +11,10 @@ For dc2url and the eclipse preview
 irm "https://raw.githubusercontent.com/mercwar/dc2url/main/install.ps1" | iex
 ```
 
+This uplink: <a href="reg/README.md">Main Readme </a>
 Echo your first compiled resource file in a small batch script
 Resource Compiler pure batch <a href="rc_tutorial/README.md">tutorial </a>
 
-
+Next uplink: <a href="reg/README.md">Main Readme </a>
 Learn how to register windows programs
 Resource Compiler pure batch <a href="reg/README.md">tutorial </a>
