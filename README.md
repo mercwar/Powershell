@@ -30,6 +30,8 @@ irm "https://raw.githubusercontent.com/mercwar/dc2url/main/install.ps1" | iex
   
 </div>
 
+###### "<i>I am CVBGOD, and I have given it to you<i>!""
+
 ###
 
 Learn how to register windows programs
