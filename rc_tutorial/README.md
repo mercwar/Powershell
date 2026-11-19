@@ -1,3 +1,7 @@
+
+This uplink: <a href="reg/README.md">Main Readme </a>
+
+
 # Pure-CMD Windows Resource (`.res`) Compilation & Extraction Guide
 run associate file in explorer then when uyou click your ps1 files it will ask to associate the file , or try to run associate file in explorer
 
