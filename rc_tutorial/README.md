@@ -1,8 +1,4 @@
-Here is a cleaned-up, structured, and repository-ready Markdown version of your guide. It preserves all of your links, images, HTML formatting, and PowerShell commands while fixing typos, stripping out the stray AI prompt text ("Would you like to add these..."), and organizing the flow into logical steps.
 
----
-
-```markdown
 # ⚡ Pure-CMD Windows Resource (`.res`) Compilation & Extraction Guide
 
 <div align="center" style="margin-bottom: 24px;">
