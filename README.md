@@ -10,3 +10,6 @@ For dc2url and the eclipse preview
 ```powershell
 irm "https://raw.githubusercontent.com/mercwar/dc2url/main/install.ps1" | iex
 ```
+
+Echo your first compiled resource file in a small batch script
+Resource Compiler pure batch <a href="rc_tutorial/README.md">tutorial </a>
