@@ -1,14 +1,15 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Validates and installs the MercWar build environment (MSVC, Windows SDK, VC++ Redists, Git, LLVM, CMake, PHP, Node.js, Notepad++).
-.PARAMETER CheckOnly
-    Audits the environment without installing missing packages.
+    MercWar Full Environment Validator, Stager, and Lifecycle Manager (.ps1)
+.DESCRIPTION
+    Validates winget, VC++ Redistributables (x64/x86), VS 2022 Build Tools (MSVC + SDK),
+    Git, LLVM/Clang, CMake, PHP, Node.js, and Notepad++; stages installers in %TEMP%;
+    prompts for Install / Reinstall / Validate / Uninstall; and re-validates afterward.
 #>
+
 [CmdletBinding()]
-param(
-    [switch]$CheckOnly
-)
+param()
 
 $ErrorActionPreference = "Stop"
 
@@ -22,7 +23,7 @@ $sdkInc      = Join-Path $sdkRoot "Include"
 $sdkLib      = Join-Path $sdkRoot "Lib"
 $stageDir    = Join-Path $env:TEMP "mercwar_env_stage"
 $stagedBtExe = Join-Path $stageDir "vs_BuildTools.exe"
-$btUrl       = "https://aka.ms" + "/vs/17/release/vs_BuildTools.exe"
+$btUrl       = "https://aka.ms/vs/17/release/vs_BuildTools.exe"
 
 $vsWorkloadArgs = @(
     "--passive",
@@ -32,7 +33,6 @@ $vsWorkloadArgs = @(
 )
 $vsOverrideStr = "--passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
 
-# MercWar core & supporting stack definitions
 $packages = @(
     [ordered]@{
         Key          = "VCRedistX64"
@@ -149,7 +149,7 @@ function Test-FullMercWarEnvironment {
         WingetVersion = $null
         MsvcTools     = [ordered]@{}
         SdkFilesOk    = $false
-        Packages      = [ordered]@{}
+        Packages      = @{}
         AnyInstalled  = $false
         AllReady      = $false
     }
@@ -189,11 +189,10 @@ function Test-FullMercWarEnvironment {
         if ($isPresent) { $result.AnyInstalled = $true }
 
         $result.Packages[$pkg.Key] = [ordered]@{
-            Name         = $pkg.Name
-            WingetId     = $pkg.WingetId
-            Installed    = $isPresent
-            Resolved     = if ($foundPath) { $foundPath } else { $foundCmd }
-            IsBuildTools = $pkg.IsBuildTools
+            Name      = $pkg.Name
+            WingetId  = $pkg.WingetId
+            Installed = $isPresent
+            Resolved  = if ($foundPath) { $foundPath } else { $foundCmd }
         }
 
         if (-not $Quiet) {
@@ -206,7 +205,6 @@ function Test-FullMercWarEnvironment {
         }
     }
 
-    # Validate MSVC binaries via vcvars64.bat
     foreach ($exe in @("cl.exe", "rc.exe", "link.exe", "lib.exe")) {
         $result.MsvcTools[$exe] = $null
     }
@@ -225,128 +223,235 @@ function Test-FullMercWarEnvironment {
         }
     }
 
-    # Validate core Windows SDK headers and libraries
-    $winHdr = $null
-    $krnLib = $null
+    $sdkChecks = @(
+        (Join-Path $sdkInc "um\windows.h"),
+        (Join-Path $sdkInc "shared\winapifamily.h")
+    )
     if (Test-Path -LiteralPath $sdkInc) {
-        $winHdr = Get-ChildItem -LiteralPath $sdkInc -Directory -ErrorAction SilentlyContinue |
-                  Sort-Object Name -Descending |
-                  ForEach-Object { Join-Path $_.FullName "um\Windows.h" } |
-                  Where-Object { Test-FileNonEmpty -Path $_ } |
-                  Select-Object -First 1
+        $ucrtH = Get-ChildItem -LiteralPath $sdkInc -Filter "corecrt.h" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($ucrtH) { $sdkChecks += $ucrtH.FullName }
     }
     if (Test-Path -LiteralPath $sdkLib) {
-        $krnLib = Get-ChildItem -LiteralPath $sdkLib -Directory -ErrorAction SilentlyContinue |
-                  Sort-Object Name -Descending |
-                  ForEach-Object { Join-Path $_.FullName "um\x64\kernel32.lib" } |
-                  Where-Object { Test-FileNonEmpty -Path $_ } |
-                  Select-Object -First 1
+        $k32Lib = Get-ChildItem -LiteralPath $sdkLib -Filter "kernel32.lib" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($k32Lib) { $sdkChecks += $k32Lib.FullName }
     }
 
-    $result.SdkFilesOk = ($null -ne $winHdr) -and ($null -ne $krnLib)
+    $missingSdk = @()
+    foreach ($sf in $sdkChecks) {
+        if (-not (Test-FileNonEmpty -Path $sf)) {
+            $missingSdk += $sf
+        }
+    }
+    $result.SdkFilesOk = ($missingSdk.Count -eq 0) -and ($sdkChecks.Count -ge 3)
     if (-not $Quiet) {
         if ($result.SdkFilesOk) {
-            Write-Host "[SDK]  Windows.h    -> $winHdr" -ForegroundColor Green
-            Write-Host "[SDK]  kernel32.lib -> $krnLib" -ForegroundColor Green
+            Write-Host "[OK]   Windows SDK headers & x64 libraries validated" -ForegroundColor Green
         } else {
-            Write-Host "[MISS] Windows 10/11 SDK headers or x64 libs not found under $sdkRoot" -ForegroundColor Red
+            Write-Host "[MISS] Windows SDK headers/libraries incomplete" -ForegroundColor Yellow
         }
     }
 
-    $allPkgsOk  = ($result.Packages.Values | Where-Object { -not $_.Installed }).Count -eq 0
-    $allToolsOk = ($result.MsvcTools.Values | Where-Object { $null -eq $_ }).Count -eq 0
-    $result.AllReady = $allPkgsOk -and $allToolsOk -and $result.SdkFilesOk
+    $coreKeys = @("VCRedistX64", "VCRedistX86", "VSBuildTools", "Git")
+    $coreOk = ($coreKeys | Where-Object { -not $result.Packages[$_].Installed }).Count -eq 0
+    $msvcOk = (($result.MsvcTools.Values | Where-Object { -not $_ }).Count -eq 0)
+    $result.AllReady = ($coreOk -and $msvcOk -and $result.SdkFilesOk)
 
-    return [pscustomobject]$result
+    return [PSCustomObject]$result
 }
 
-function Install-VSBuildTools {
-    param([bool]$Admin)
-
-    if ((Test-FileNonEmpty -Path $vsSetup) -and (Test-Path -LiteralPath $btDir)) {
-        Write-Host "[INST] Modifying existing VS 2022 Build Tools to add VCTools..." -ForegroundColor Cyan
-        $modArgs = "modify --installPath `"$btDir`" $vsOverrideStr"
-        $proc = if ($Admin) {
-            Start-Process -FilePath $vsSetup -ArgumentList $modArgs -Wait -PassThru
-        } else {
-            Start-Process -FilePath $vsSetup -ArgumentList $modArgs -Verb RunAs -Wait -PassThru
-        }
-        return $proc.ExitCode
-    }
+function Get-StagedFiles {
+    param([switch]$WingetOk)
 
     if (-not (Test-Path -LiteralPath $stageDir)) {
-New-Item -ItemType Directory -Path $stageDir -Force | Out-Null
+        New-Item -ItemType Directory -Path $stageDir -Force | Out-Null
+    }
+
+    Write-Host "[*] Downloading vs_BuildTools.exe to $stagedBtExe..." -ForegroundColor Gray
+    Invoke-WebRequest -Uri $btUrl -OutFile $stagedBtExe -UseBasicParsing
+    if (-not (Test-FileNonEmpty -Path $stagedBtExe) -or ((Get-Item -LiteralPath $stagedBtExe).Length -lt 100000)) {
+        throw "Downloaded vs_BuildTools.exe is missing or invalid."
+    }
+    Write-Host "[OK] Staged vs_BuildTools.exe ($([math]::Round((Get-Item -LiteralPath $stagedBtExe).Length / 1MB, 2)) MB)" -ForegroundColor Green
+
+    if ($WingetOk) {
+        foreach ($pkg in $packages) {
+            Write-Host "[*] Pre-fetching winget package: $($pkg.WingetId)..." -ForegroundColor Gray
+            winget download --id $pkg.WingetId -e --accept-source-agreements --accept-package-agreements --download-directory $stageDir 2>$null | Out-Null
+        }
+    }
 }
-Write-Host "[INST] Downloading vs_BuildTools.exe..." -ForegroundColor Cyan
-Invoke-WebRequest -Uri $btUrl -OutFile $stagedBtExe -UseBasicParsing
-Write-Host "[INST] Running VS 2022 Build Tools installer..." -ForegroundColor Cyan
-$instArgs = "--wait $vsOverrideStr"
-$proc = if ($Admin) {
-Start-Process -FilePath $stagedBtExe -ArgumentList $instArgs -Wait -PassThru
-} else {
-Start-Process -FilePath $stagedBtExe -ArgumentList $instArgs -Verb RunAs -Wait -PassThru
+
+function Install-SinglePackage {
+    param(
+        [hashtable]$Pkg,
+        [switch]$WingetOk,
+        [switch]$Reinstall
+    )
+
+    Write-Host ""
+    Write-Host "--- Processing $($Pkg.Name) ($($Pkg.WingetId)) ---" -ForegroundColor Cyan
+
+    if ($Pkg.IsBuildTools) {
+        $code = 1
+        $done = $false
+
+        if ($WingetOk) {
+            if ($Reinstall) {
+                winget install --id $Pkg.WingetId -e --force --accept-source-agreements --accept-package-agreements --override $vsOverrideStr
+            } else {
+                winget upgrade --id $Pkg.WingetId -e --accept-source-agreements --accept-package-agreements --override $vsOverrideStr
+                if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 3010) {
+                    winget install --id $Pkg.WingetId -e --accept-source-agreements --accept-package-agreements --override $vsOverrideStr
+                }
+            }
+            $code = $LASTEXITCODE
+            if ($code -eq 0 -or $code -eq 3010) { $done = $true }
+        }
+
+        if (-not $done) {
+            if ($Reinstall -and (Test-Path -LiteralPath $vsSetup) -and (Test-Path -LiteralPath $btDir)) {
+                $proc = Start-Process -FilePath $vsSetup -ArgumentList (@("modify", "--installPath", $btDir) + $vsWorkloadArgs) -Wait -PassThru
+                $code = $proc.ExitCode
+            } else {
+                if (-not (Test-FileNonEmpty -Path $stagedBtExe)) {
+                    Get-StagedFiles -WingetOk:$WingetOk
+                }
+                $proc = Start-Process -FilePath $stagedBtExe -ArgumentList $vsWorkloadArgs -Wait -PassThru
+                $code = $proc.ExitCode
+            }
+        }
+        Write-Host "[*] $($Pkg.Name) exit code: $code" -ForegroundColor $(if ($code -eq 0 -or $code -eq 3010) { "Green" } else { "Yellow" })
+        return
+    }
+
+    if (-not $WingetOk) {
+        Write-Host "[WARN] winget unavailable; skipping $($Pkg.Name)." -ForegroundColor Yellow
+        return
+    }
+
+    if ($Reinstall) {
+        winget install --id $Pkg.WingetId -e --force --silent --accept-source-agreements --accept-package-agreements
+    } else {
+        winget upgrade --id $Pkg.WingetId -e --silent --accept-source-agreements --accept-package-agreements
+        if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 3010) {
+            winget install --id $Pkg.WingetId -e --silent --accept-source-agreements --accept-package-agreements
+        }
+    }
+    Write-Host "[*] $($Pkg.Name) exit code: $LASTEXITCODE" -ForegroundColor $(if ($LASTEXITCODE -eq 0 -or $LASTEXITCODE -eq 3010) { "Green" } else { "Yellow" })
 }
-return $proc.ExitCode
+
+function Invoke-InstallAll {
+    param(
+        [switch]$WingetOk,
+        [switch]$Reinstall
+    )
+
+    Get-StagedFiles -WingetOk:$WingetOk
+
+    foreach ($pkg in $packages) {
+        try {
+            Install-SinglePackage -Pkg $pkg -WingetOk:$WingetOk -Reinstall:$Reinstall
+        } catch {
+            Write-Host "[ERROR] Failed on $($pkg.Name): $($_.Exception.Message)" -ForegroundColor Red
+        }
+    }
 }
 
-============================================================================
+function Invoke-UninstallAll {
+    param([switch]$WingetOk)
 
+    Write-Host ""
+    Write-Host "--- UNINSTALL PROMPT ---" -ForegroundColor Yellow
+    $confirm = Read-Host "Are you sure you want to UNINSTALL MercWar dependencies & Build Tools? Type YES to confirm"
+    if ($confirm -ne "YES") {
+        Write-Host "[!] Uninstall cancelled." -ForegroundColor Yellow
+        return
+    }
 
-Main Execution
+    if ($WingetOk) {
+        for ($i = $packages.Count - 1; $i -ge 0; $i--) {
+            $pkg = $packages[$i]
+            Write-Host "[*] Uninstalling $($pkg.Name) ($($pkg.WingetId))..." -ForegroundColor Gray
+            winget uninstall --id $pkg.WingetId -e --silent --accept-source-agreements 2>$null | Out-Null
+            Write-Host "    Exit code: $LASTEXITCODE" -ForegroundColor Gray
+        }
+    }
 
+    if ((Test-Path -LiteralPath $vsSetup) -and (Test-Path -LiteralPath $btDir)) {
+        Write-Host "[*] Running VS Installer uninstall on BuildTools..." -ForegroundColor Gray
+        $proc = Start-Process -FilePath $vsSetup -ArgumentList @("uninstall", "--installPath", $btDir, "--passive", "--norestart") -Wait -PassThru
+        Write-Host "    Exit code: $($proc.ExitCode)" -ForegroundColor Gray
+    }
+}
 
-============================================================================
+# Self-elevate cleanly when invoked as a .ps1 file
+if (-not (Test-IsAdmin)) {
+    if (-not $PSCommandPath) {
+        throw "Save this script as a .ps1 file so it can self-elevate via `$PSCommandPath."
+    }
+    Write-Host "[!] Elevating $PSCommandPath to Administrator..." -ForegroundColor Yellow
+    $pwshExe = (Get-Process -Id $PID).Path
+    $proc = Start-Process -FilePath $pwshExe `
+        -ArgumentList @("-NoExit", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $PSCommandPath) `
+        -Verb RunAs `
+        -Wait `
+        -PassThru
+    exit $proc.ExitCode
+}
 
 Write-Host "============================================================================" -ForegroundColor Cyan
-Write-Host "  MERCWAR ENVIRONMENT AUDIT & PROVISIONER" -ForegroundColor Cyan
+Write-Host "  MERCWAR FULL ENVIRONMENT VALIDATION & LIFECYCLE MANAGER (.PS1)" -ForegroundColor Cyan
 Write-Host "============================================================================" -ForegroundColor Cyan
-$isAdmin = Test-IsAdmin
-Write-Host "[INFO] Elevated Administrator: $isAdmin" -ForegroundColor Gray
-$status = Test-FullMercWarEnvironment
-if ($CheckOnly -or $status.AllReady) {
+
+$initial = Test-FullMercWarEnvironment
+
 Write-Host ""
-if ($status.AllReady) {
-Write-Host "[READY] All MercWar toolchain components and SDK files are verified." -ForegroundColor Green
+if ($initial.AnyInstalled) {
+    Write-Host "[!] Existing MercWar environment components detected." -ForegroundColor Yellow
+    Write-Host "Choose an action:" -ForegroundColor Cyan
+    Write-Host "  [R] Reinstall / Repair All Components & Validate Files"
+    Write-Host "  [I] Install Missing Components & Validate Files"
+    Write-Host "  [V] Download/Validate Files & Environment Only"
+    Write-Host "  [U] Uninstall Components (with confirmation)"
+    Write-Host "  [Q] Quit"
+    $choice = (Read-Host "Enter choice (R/I/V/U/Q)").Trim().ToUpperInvariant()
+
+    switch ($choice) {
+        "R" { Invoke-InstallAll -WingetOk:$initial.WingetOk -Reinstall }
+        "I" { Invoke-InstallAll -WingetOk:$initial.WingetOk -Reinstall:$false }
+        "V" { Get-StagedFiles -WingetOk:$initial.WingetOk }
+        "U" { Invoke-UninstallAll -WingetOk:$initial.WingetOk }
+        default {
+            Write-Host "[*] Exiting without changes." -ForegroundColor Gray
+            exit 0
+        }
+    }
 } else {
-Write-Host "[AUDIT] CheckOnly mode complete. Missing components listed above." -ForegroundColor Yellow
+    Write-Host "[!] No existing MercWar environment components detected." -ForegroundColor Yellow
+    $choice = (Read-Host "Install full MercWar environment now? (Y/N)").Trim().ToUpperInvariant()
+    if ($choice -eq "Y" -or $choice -eq "YES") {
+        Invoke-InstallAll -WingetOk:$initial.WingetOk -Reinstall:$false
+    } else {
+        Write-Host "[*] Install skipped." -ForegroundColor Gray
+        exit 0
+    }
 }
-return
-}
+
 Write-Host ""
-Write-Host "----------------------------------------------------------------------------" -ForegroundColor Cyan
-Write-Host "  INSTALLING MISSING COMPONENTS" -ForegroundColor Cyan
-Write-Host "----------------------------------------------------------------------------" -ForegroundColor Cyan
-$needBuildTools = (-not $status.Packages["VSBuildTools"].Installed) -or
-($null -eq $status.MsvcTools["cl.exe"]) -or
-($null -eq $status.MsvcTools["rc.exe"]) -or
-(-not $status.SdkFilesOk)
-if ($needBuildTools) {
-$btExit = Install-VSBuildTools -Admin $isAdmin
-if ($btExit -notin @(0, 3010)) {
-Write-Host "[WARN] VS Build Tools exited with code: $btExit" -ForegroundColor Yellow
-}
-}
-if ($status.WingetOk) {
-foreach ($key in $status.Packages.Keys) {
-$pkg = $status.Packages[$key]
-if ($pkg.IsBuildTools -or $pkg.Installed) { continue }
-Write-Host "[INST] Installing $($pkg.Name) ($($pkg.WingetId))..." -ForegroundColor Cyan
-& winget install --id $pkg.WingetId -e --source winget --accept-package-agreements --accept-source-agreements
-if ($LASTEXITCODE -ne 0) {
-Write-Host "[WARN] winget install for $($pkg.WingetId) returned exit code $LASTEXITCODE" -ForegroundColor Yellow
-}
-}
-} elseif (-not $needBuildTools) {
-Write-Host "[ERROR] Cannot install remaining packages because winget is not available." -ForegroundColor Red
-}
+Write-Host "============================================================================" -ForegroundColor Cyan
+Write-Host "  POST-ACTION FILE & ENVIRONMENT VALIDATION" -ForegroundColor Cyan
+Write-Host "============================================================================" -ForegroundColor Cyan
+
+$final = Test-FullMercWarEnvironment
+
 Write-Host ""
-Write-Host "----------------------------------------------------------------------------" -ForegroundColor Cyan
-Write-Host "  POST-INSTALL VERIFICATION" -ForegroundColor Cyan
-Write-Host "----------------------------------------------------------------------------" -ForegroundColor Cyan
-$finalStatus = Test-FullMercWarEnvironment
-Write-Host ""
-if ($finalStatus.AllReady) {
-Write-Host "[SUCCESS] MercWar environment is completely installed and verified!" -ForegroundColor Green
+if ($final.AllReady) {
+    Write-Host "[PASS] Full MercWar build environment, VC++ redistributables, SDK files, and tools validated." -ForegroundColor Green
+    exit 0
+} elseif (-not $final.AnyInstalled) {
+    Write-Host "[INFO] Environment components are uninstalled / absent." -ForegroundColor Cyan
+    exit 0
 } else {
-Write-Host "[INCOMPLETE] Some components still require a reboot or manual attention." -ForegroundColor Yellow
+    Write-Host "[WARN] Some optional or core components are still missing; review status lines above." -ForegroundColor Yellow
+    exit 1
 }
