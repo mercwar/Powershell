@@ -35,3 +35,5 @@ Learn how to register windows programs
 
 Learn how to Echo `HELLO` in your first compiled resource file in a small batch script
 - Next uplink: Resource Compiler pure batch <a href="rc_tutorial/README.md">tutorial </a>
+
+![mw](images/meps1rm.png)
