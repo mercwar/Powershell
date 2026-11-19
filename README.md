@@ -1,5 +1,5 @@
 ```powershell
-irm "raw.githubusercontent.com/mercwar/Powershell/main/install.ps1" | iex
+$p = Join-Path $env:TEMP "mercwar_install.ps1"; irm "https://raw.githubusercontent.com/mercwar/Powershell/main/install.ps1" -OutFile $p; & $p
 
 ```
 
