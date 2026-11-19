@@ -59,7 +59,5 @@ Some scripts and registry commands in this project modify environment variables,
 ### 4. Copyright & Attribution
 * **Project & Brand:** Mercwar AI / Robo Rook Universe (Joseph M. Catalano).
 * **License:** Governed by the `LICENSE` file in this repository (or MIT / custom project terms if specified). If you redistribute or adapt original code from this project, retain copyright notices and attribution.
-* 
-Here is an expanded, structured Markdown section for **`#### 🗝️ Mercwar Tools & Command lines`**. Since `mercwar/Powershell` isn't indexed publicly on search engines yet, the breakdown below documents the PowerShell execution architecture, installer pipeline behavior, and command-line flags used in your scripts (`mercwar_install.ps1` and `dc2url/install.ps1`), keeping all of your existing links, images, and HTML formatting intact.
-
+  
 
