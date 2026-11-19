@@ -22,6 +22,8 @@ Replace the following placeholders with your application's actual paths and meta
 | `<HEADLESS_DLL>` | Filename of the headless engine DLL | Not Required
 | `<SIZE_KB>` | Estimated installation size in kilobytes (integer) |
 
+This is the complete install shield use for Eclipse
+
 ---
 
 ## Part 1: Windows Installation Steps
