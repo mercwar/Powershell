@@ -1,3 +1,9 @@
 ```powershell
-irm "https://github.com/mercwar/Powershell/raw/refs/heads/main/install.ps1" | iex
+irm "raw.githubusercontent.com/mercwar/Powershell/main/install.ps1" | iex
+
+```
+
+For dc2url and the eclipse preview
+```powershell
+irm "https://raw.githubusercontent.com/mercwar/dc2url/main/install.ps1" | iex
 ```
