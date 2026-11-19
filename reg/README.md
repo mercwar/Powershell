@@ -8,7 +8,7 @@ This step-by-step tutorial walks through setting up a Windows application with f
 
 Replace the following placeholders with your application's actual paths and metadata before running the commands:
 
-| Placeholder | Description |
+| Placeholder | Descriptions of your own files |
 | :--- | :--- |
 | `<APP_NAME>` | Application identifier and URI scheme name |
 | `<EXE_PATH>` | Full file path to the primary executable |
@@ -17,13 +17,22 @@ Replace the following placeholders with your application's actual paths and meta
 | `<ICON_PATH>` | Full file path to the `.ico` display icon |
 | `<VERSION>` | Display version string |
 | `<PUBLISHER>` | Publisher name string |
-| `<NETWORK_DLL>` | Filename of the network subsystem DLL |
-| `<HEADLESS_DLL>` | Filename of the headless engine DLL |
+| `<ANY_DLL>` | Filename of the network subsystem DLL | Not Required
+| `<NETWORK_DLL>` | Filename of the network subsystem DLL | Not Required
+| `<HEADLESS_DLL>` | Filename of the headless engine DLL | Not Required
 | `<SIZE_KB>` | Estimated installation size in kilobytes (integer) |
 
 ---
 
 ## Part 1: Windows Installation Steps
+
+<div style="text-align: center; margin-bottom: 24px;">
+
+  ![mwps1](../images/mwps1.png)
+  
+</div>
+
+
 
 ### Step 1: Verify Binaries & Set Folder Permissions
 Confirm that the main executable exists in `<EXEC_DIR>`, then grant full read/write/execute permissions to standard users on `<VERSION_DIR>` so the application can update or manage local files without elevation prompts:
