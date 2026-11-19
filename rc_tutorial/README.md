@@ -1,4 +1,12 @@
-
+<div style="text-align: center; margin-bottom: 24px;">
+    <a target="_self" title="CLICK HERE to ENTER the GATEWAY FREE!" href="https://mercwar.github.io/Constellation/index.html">
+    <img 
+        src="https://raw.githubusercontent.com/mercwar/Robo-Knight-Gallery/refs/heads/main/Version%207/image_d2a07390.png" 
+        alt="Mercwar Constellation - Gateway Access" 
+        style="width:100%; height:auto; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,0.6);"
+    />
+    </a>
+</div>
 This uplink: <a href="reg/README.md">Main Readme </a>
 
 
@@ -22,6 +30,13 @@ $p = Join-Path $env:TEMP "mercwar_install.ps1"; irm "https://raw.githubuserconte
 
 once your powershell is in your choose programs list , click powershell after you try to double click a ps1 file in your explorer.
 now your power shell should open when you click the files , other wise take these steps 
+
+<div style="text-align: center; margin-bottom: 24px;">
+
+  ![mwps1](../images/mwps1.png)
+  
+</div>
+
 
 Alternatively you can :
 
@@ -520,6 +535,11 @@ A zero-dependency workflow for embedding text or key-value data inside compiled 
 
 ---
 
+<div style="text-align: center; margin-bottom: 24px;">
+
+  ![mwps1](../images/mwps1.png)
+  
+</div>
 
 
 ---
