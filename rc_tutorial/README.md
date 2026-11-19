@@ -1,5 +1,5 @@
 
-# ⚡ Pure-CMD Windows Resource (`.res`) Compilation & Extraction Guide
+#### 📦 Pure-CMD Windows Resource (`.res`) Compilation & Extraction Guide
 
 <div align="center" style="margin-bottom: 24px;">
   <a target="_self" title="CLICK HERE to ENTER the GATEWAY FREE!" href="https://mercwar.github.io/Constellation/index.html">
