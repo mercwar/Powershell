@@ -1,34 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://github.com/mercwar/Powershell/blob/main/rc_tutorial/README.md</loc>
-  </url>
-  <url>
-    <loc>https://github.com/mercwar/Powershell/blob/main/index.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/mercwar/Powershell/blob/main/reg/README.md</loc>
-  </url>
-  <url>
-    <loc>https://github.com/mercwar/Powershell/blob/main/_config.yml</loc>
-  </url>
-  <url>
-    <loc>https://github.com/mercwar/Powershell/blob/main/shell/associate_file_in_exlorer.ps1</loc>
-  </url>
-  <url>
     <loc>https://github.com/mercwar/Powershell/blob/main/shell/add_to_choose_programs.ps1</loc>
   </url>
   <url>
-    <loc>https://github.com/mercwar/Powershell/blob/main/install.ps1</loc>
-  </url>
-  <url>
-    <loc>https://github.com/mercwar/Powershell/blob/main/README.md</loc>
-  </url>
-  <url>
-    <loc>https://github.com/mercwar/Powershell/blob/main/LICENSE</loc>
-  </url>
-  <url>
-    <loc>https://github.com/mercwar/Powershell/blob/main/images/CVBGOD</loc>
+    <loc>https://github.com/mercwar/Powershell/blob/main/shell/associate_file_in_exlorer.ps1</loc>
   </url>
   <url>
     <loc>https://github.com/mercwar/Powershell/blob/main/images/mwps1rm.png</loc>
@@ -37,18 +13,42 @@
     <loc>https://github.com/mercwar/Powershell/blob/main/images/mwps1.png</loc>
   </url>
   <url>
-    <loc>https://github.com/mercwar/Powershell/blob/main/.gitmodules</loc>
+    <loc>https://github.com/mercwar/Powershell/blob/main/images/CVBGOD</loc>
   </url>
   <url>
-    <loc>https://github.com/mercwar/Powershell/blob/main/google77a4b19e8f99751c.html</loc>
+    <loc>https://github.com/mercwar/Powershell/blob/main/install.ps1</loc>
+  </url>
+  <url>
+    <loc>https://github.com/mercwar/Powershell/blob/main/LICENSE</loc>
+  </url>
+  <url>
+    <loc>https://github.com/mercwar/Powershell/blob/main/_config.yml</loc>
+  </url>
+  <url>
+    <loc>https://github.com/mercwar/Powershell/blob/main/index.html</loc>
   </url>
   <url>
     <loc>https://github.com/mercwar/Powershell/blob/main/sitemap.xml</loc>
   </url>
   <url>
+    <loc>https://github.com/mercwar/Powershell/blob/main/.gitmodules</loc>
+  </url>
+  <url>
+    <loc>https://github.com/mercwar/Powershell/blob/main/README.md</loc>
+  </url>
+  <url>
     <loc>https://github.com/mercwar/Powershell/blob/main/fire-site.sh</loc>
   </url>
   <url>
+    <loc>https://github.com/mercwar/Powershell/blob/main/reg/README.md</loc>
+  </url>
+  <url>
     <loc>https://github.com/mercwar/Powershell/blob/main/.github/workflows/fire-site.yml</loc>
+  </url>
+  <url>
+    <loc>https://github.com/mercwar/Powershell/blob/main/rc_tutorial/README.md</loc>
+  </url>
+  <url>
+    <loc>https://github.com/mercwar/Powershell/blob/main/google77a4b19e8f99751c.html</loc>
   </url>
 </urlset>
